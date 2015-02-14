@@ -192,15 +192,4 @@ xyplot(mean.steps ~ interval | weekend, data = activity_impute_mean, type = "l",
 
 ```
 
-
-
-```{r}
-setwd("C:/Users/rr046302/Documents/Bill's Stuff/Coursera/Reproducible Research/RepData_PeerAssessment1")
-```
-
-
-For final project use ## knit2html("PA1_template.Rmd")
-
-```{r}
-
-```
+There exist clear difference in activity between weekends and weekdays, which is understandable as most people are more active in the weekends than they are during the week.  

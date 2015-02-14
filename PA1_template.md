@@ -176,7 +176,9 @@ ggplot(data=activity_day, aes(x=interval, y=mean.steps)) + geom_line() + facet_w
 labs(title = "Mean steps per Interval for each day of the Week")
 ```
 
-![plot of chunk unnamed-chunk-14](figure/unnamed-chunk-14-1.png) 
+```
+## Error in eval(expr, envir, enclos): object 'interval' not found
+```
 
 I will use the following strategy to impute missing values - calculate the average number of steps for each day of week/interval combination and complete the dataset by substituting this data for the NAs.  
 
@@ -275,14 +277,4 @@ xyplot(mean.steps ~ interval | weekend, data = activity_impute_mean, type = "l",
 
 ![plot of chunk unnamed-chunk-22](figure/unnamed-chunk-22-1.png) 
 
-
-
-
-```r
-setwd("C:/Users/rr046302/Documents/Bill's Stuff/Coursera/Reproducible Research/RepData_PeerAssessment1")
-```
-
-
-For final project use ## knit2html("PA1_template.Rmd")
-
-
+There exist clear difference in activity between weekends and weekdays, which is understandable as most people are more active in the weekends than they are during the week.  
