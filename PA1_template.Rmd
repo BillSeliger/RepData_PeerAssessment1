@@ -81,7 +81,9 @@ activity_interval <- activity %>% group_by(interval.factor) %>%
 
 ```{r}
 activity_interval$interval <- as.numeric(as.character(activity_interval$interval.factor))
-plot(activity_interval$interval, activity_interval$mean.steps, type = "l", xaxt="n", xlab = "<-----------------Morning         5-minute interval          Night----------------->", ylab = "mean steps", main = "Daily Activity Pattern", sub = "Average steps recorded for October-November 2012")
+plot(activity_interval$interval, activity_interval$mean.steps, type = "l", xaxt="n", 
+     xlab = "<-----------------Morning         5-minute interval          Night----------------->", 
+     ylab = "mean steps", main = "Daily Activity Pattern", sub = "Average steps recorded for October-November 2012")
 axis(1, at = seq(100, 2300, by = 100), las = 2)
 ```
 
@@ -134,7 +136,8 @@ I will use the following strategy to impute missing values - calculate the avera
 
 First I calculate the interval average for each weekday for which we have observations
 ```{r}
-activity_day <- activity %>% group_by(weekday, interval.factor) %>% summarise(mean.steps = mean(steps, na.rm =TRUE))
+activity_day <- activity %>% group_by(weekday, interval.factor) %>% 
+  summarise(mean.steps = mean(steps, na.rm =TRUE))
 ```
 
 I then merge the original data table, activity, with the activity_day dataframe which has the average steps for each interval/day combination and then create the variable impute_steps which uses an ifelse statement to use the original steps for the interval/date combination if that data is populated, else it uses the average number of steps if the original interval/date combination is NA.

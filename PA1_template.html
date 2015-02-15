@@ -284,7 +284,9 @@ hist(activity_days$total.steps, breaks = 25, main = &quot;Histogram of Total Ste
 <p>####Make a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)</p>
 
 <pre><code class="r">activity_interval$interval &lt;- as.numeric(as.character(activity_interval$interval.factor))
-plot(activity_interval$interval, activity_interval$mean.steps, type = &quot;l&quot;, xaxt=&quot;n&quot;, xlab = &quot;&lt;-----------------Morning         5-minute interval          Night-----------------&gt;&quot;, ylab = &quot;mean steps&quot;, main = &quot;Daily Activity Pattern&quot;, sub = &quot;Average steps recorded for October-November 2012&quot;)
+plot(activity_interval$interval, activity_interval$mean.steps, type = &quot;l&quot;, xaxt=&quot;n&quot;, 
+     xlab = &quot;&lt;-----------------Morning         5-minute interval          Night-----------------&gt;&quot;, 
+     ylab = &quot;mean steps&quot;, main = &quot;Daily Activity Pattern&quot;, sub = &quot;Average steps recorded for October-November 2012&quot;)
 axis(1, at = seq(100, 2300, by = 100), las = 2)
 </code></pre>
 
@@ -362,7 +364,8 @@ labs(title = &quot;Mean steps per Interval for each day of the Week&quot;)
 
 <p>First I calculate the interval average for each weekday for which we have observations</p>
 
-<pre><code class="r">activity_day &lt;- activity %&gt;% group_by(weekday, interval.factor) %&gt;% summarise(mean.steps = mean(steps, na.rm =TRUE))
+<pre><code class="r">activity_day &lt;- activity %&gt;% group_by(weekday, interval.factor) %&gt;% 
+  summarise(mean.steps = mean(steps, na.rm =TRUE))
 </code></pre>
 
 <p>I then merge the original data table, activity, with the activity_day dataframe which has the average steps for each interval/day combination and then create the variable impute_steps which uses an ifelse statement to use the original steps for the interval/date combination if that data is populated, else it uses the average number of steps if the original interval/date combination is NA.</p>
