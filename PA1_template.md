@@ -25,7 +25,7 @@ Set the working directory on my local computer
 setwd("C:/Users/rr046302/Documents/Bill's Stuff/Coursera/Reproducible Research/RepData_PeerAssessment1")
 ```
 
-Require several packages I will be using, set the scientific notation option, and read in the data from the local zipped file to the object activty, require the dplyr, ggplot2, and lattice packages, and, using the dplyr package, convert the activity object to a tbl class.  I have echo-FALSE and warning=FALSE to suppress echo and warning just for this code chunk.
+I require several packages I will be using - dplyr, ggplot2, and lattice packages - and set the scientific notation option.  I have echo=FALSE and warning=FALSE to suppress echo and warning just for this code chunk.  
 
 ```r
 require("dplyr") ## dplyr is used for structuring the data for analysis
@@ -34,6 +34,8 @@ require("lattice") ## lattice plot is required for the weekday-weekend plot
 options(scipen = 999) ## eliminate scientific notation
 ```
 
+Then read in the data from the local zipped file to the object activty, and convert the activity object to a tbl class.
+
 ```r
 activity <- read.csv(unz("activity.zip","activity.csv")) ## read in the data
 activity <- tbl_df(activity) ## structure the data as a tbl class
@@ -41,8 +43,8 @@ activity <- tbl_df(activity) ## structure the data as a tbl class
 
 ##What is mean total number of steps taken per day?
 
-For this part of the assignment, you can ignore the missing values in the dataset.
-Make a histogram of the total number of steps taken each day
+*For this part of the assignment, you can ignore the missing values in the dataset.
+Make a histogram of the total number of steps taken each day*
 
 First I aggregate the number of steps per day.  I use the group_by function and then the summarise function from dplyr to perform the aggregation of steps by day and last the hist function to create the histogram plot
 
@@ -65,7 +67,7 @@ mean((activity_days$total.steps), na.rm = TRUE)
 ```
 ####The mean number of steps taken per day is 10766
 
-Calculate and report the median total number of steps taken per day
+####Calculate and report the median total number of steps taken per day
 
 ```r
 median((activity_days$total.steps), na.rm = TRUE)
@@ -89,7 +91,8 @@ activity$interval.factor <- as.factor(activity$interval)
 Calculate the average number of steps for each interval using the group_by and summarise functions
 
 ```r
-activity_interval <- activity %>% group_by(interval.factor) %>% summarise(mean.steps = mean(steps, na.rm =TRUE))
+activity_interval <- activity %>% group_by(interval.factor) %>% 
+  summarise(mean.steps = mean(steps, na.rm =TRUE))
 ```
 
 ####Make a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
@@ -121,7 +124,7 @@ print(activity_interval[max_steps_interval,])
 
 ##Imputing missing values
 
-There are a number of observations where there are missing values (coded as NA). The presence of missing data may introduce bias into some calculations or summaries of the data.
+*There are a number of observations where there are missing values (coded as NA). The presence of missing data may introduce bias into some calculations or summaries of the data.*
 
 ####Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
 
@@ -137,7 +140,7 @@ sum(is.na(activity$steps))
 
 ##Create a new dataset with the missing data filled in.
 
-After reviewing the data I found that the NAs consist of a specific set of dates for which no observations are recorded - in other words for each date for which there are observations there are no NAs and there are 8 days for which there are no observations at all - the observations for those 8 days are NAs.  
+After reviewing the data I found that the NAs consist of a specific set of dates for which no observations are recorded - in other words for each date for which there are observations there are no NAs and there are 8 days for which there are no observations at all - the observations for those 8 days are NAs.  I perform exploratory data analysis that will suggest an imputation strategy.
 
 First I create a variable for day of week and order them so they appear in US order of weekday - weekend in plots (Monday-Sunday)
 
@@ -172,13 +175,12 @@ In performing exploratory data analysis on the dataset I found that there are di
 To show the variation in steps across each day of week/interval I create a facet plot of the mean steps for each interval for each weekday
 
 ```r
+activity_day$interval <- as.numeric(as.character(activity_day$interval.factor))
 ggplot(data=activity_day, aes(x=interval, y=mean.steps)) + geom_line() + facet_wrap(~weekday) +
 labs(title = "Mean steps per Interval for each day of the Week")
 ```
 
-```
-## Error in eval(expr, envir, enclos): object 'interval' not found
-```
+![plot of chunk unnamed-chunk-14](figure/unnamed-chunk-14-1.png) 
 
 I will use the following strategy to impute missing values - calculate the average number of steps for each day of week/interval combination and complete the dataset by substituting this data for the NAs.  
 
@@ -188,12 +190,12 @@ First I calculate the interval average for each weekday for which we have observ
 activity_day <- activity %>% group_by(weekday, interval.factor) %>% summarise(mean.steps = mean(steps, na.rm =TRUE))
 ```
 
-I then merge the original data table, activity, with the activity_day dataframe which has the average steps for each interval/day combination and then create the variable impute_steps which uses an ifelse statement to use the average number of steps if the original interval/dat combination is NA, else it uses the original steps for the interval/date combination.
-
+I then merge the original data table, activity, with the activity_day dataframe which has the average steps for each interval/day combination and then create the variable impute_steps which uses an ifelse statement to use the original steps for the interval/date combination if that data is populated, else it uses the average number of steps if the original interval/date combination is NA.
 
 ```r
 activity_impute <- merge(activity, activity_day, by=c("weekday","interval.factor"))
-activity_impute$impute.steps <- ifelse(is.na(activity_impute$steps), activity_impute$mean.steps, activity_impute$steps)
+activity_impute$impute.steps <- ifelse(is.na(activity_impute$steps), 
+                                       activity_impute$mean.steps, activity_impute$steps)
 ```
 
 ####Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
@@ -202,8 +204,10 @@ First I aggregate the number of steps per day.  I use the group_by function and 
 
 
 ```r
-activity_impute_mean <- activity_impute %>% group_by(date) %>% summarise(total.steps = sum(impute.steps))
-hist(activity_impute_mean$total.steps, breaks = 25, main = "Histogram of Total Steps per Day using Imputed Data")
+activity_impute_mean <- activity_impute %>% group_by(date) %>% 
+  summarise(total.steps = sum(impute.steps))
+hist(activity_impute_mean$total.steps, breaks = 25, 
+     main = "Histogram of Total Steps per Day using Imputed Data")
 ```
 
 ![plot of chunk unnamed-chunk-17](figure/unnamed-chunk-17-1.png) 
@@ -230,7 +234,7 @@ median(activity_impute_mean$total.steps)
 ```
 ####The median number of steps taken per day is 11015
 
-Because I used an impute strategy that is granular, i.e. imputing at each day of the week and interval and the number of missing observations varies across the days of the week the imputation strategy does impact the mean and median steps across the entire data set.  
+Because I used an impute strategy that is granular, i.e. imputing at each day of the week and interval, and the number of missing observations varies across the days of the week, the imputation strategy does impact the mean and median steps across the entire data set.  
 
 Here I show the mean steps for each weekday prior to imputation (which is the same as the average after imputation) - because the missing observations varied across the weekdays the imputation strategy did impact the post-imputation Histogram, Mean and Median
 
@@ -253,7 +257,7 @@ print(activity_day_mean)
 ## 7    Sunday      12278
 ```
 
-I believe this imputation strategy is supported by the data.
+I believe this imputation strategy is valid and supported by the data provided for this assignment.
 
 ##Are there differences in activity patterns between weekdays and weekends?
 
@@ -263,7 +267,8 @@ Create a new factor variable in the dataset with two levels - "weekday" and "wee
 
 
 ```r
-activity_impute <- activity_impute %>% mutate(weekend = ifelse(weekday == "Saturday" | weekday == "Sunday", "weekend", "weekday"))
+activity_impute <- activity_impute %>% 
+  mutate(weekend = ifelse(weekday == "Saturday" | weekday == "Sunday", "weekend", "weekday"))
 ```
 
 
@@ -271,10 +276,13 @@ Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minut
 
 
 ```r
-activity_impute_mean <- activity_impute %>% group_by(weekend, interval) %>% summarise(mean.steps = mean(impute.steps))
-xyplot(mean.steps ~ interval | weekend, data = activity_impute_mean, type = "l", layout = c(1,2), xlab = "Interval", ylab = "Number of Steps", main = "Average Steps by 5-minute Interval for Weekends and Weekdays")
+activity_impute_mean <- activity_impute %>% group_by(weekend, interval) %>% 
+  summarise(mean.steps = mean(impute.steps))
+xyplot(mean.steps ~ interval | weekend, data = activity_impute_mean, 
+       type = "l", layout = c(1,2), xlab = "Interval", ylab = "Number of Steps", 
+       main = "Average Steps by 5-minute Interval for Weekends and Weekdays")
 ```
 
 ![plot of chunk unnamed-chunk-22](figure/unnamed-chunk-22-1.png) 
 
-There exist clear difference in activity between weekends and weekdays, which is understandable as most people are more active in the weekends than they are during the week.  
+There exists clear differences in activity between weekends and weekdays, which is understandable as most people are more active in the weekends than they are during the week.  
